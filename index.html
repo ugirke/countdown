@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netto Countdown</title>
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5ldHRvIENvdW50ZG93biIsCiAgInNob3J0X25hbWUiOiAiQ291bnRkb3duIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxRTFFMjQiLAogICJ0aGVtZV9jb2xvciI6ICIjRDMyRjJGIgp9">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #1E1E24;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .calendar-card {
+            width: 320px;
+            background: #FAFAFA;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+        .header {
+            background-color: #D32F2F;
+            color: white;
+            padding: 24px 10px 15px 10px;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        /* Kalender-Löcher */
+        .header::before, .header::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            width: 14px;
+            height: 14px;
+            background-color: #1E1E24;
+            border-radius: 50%;
+        }
+        .header::before { left: 40px; }
+        .header::after { right: 40px; }
+
+        .body-content {
+            padding: 40px 20px;
+        }
+        .number {
+            font-size: 5rem;
+            font-weight: 800;
+            color: #111;
+            line-height: 1;
+        }
+        .subtext {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #666;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+        .footer-date {
+            margin-top: 30px;
+            font-size: 0.95rem;
+            color: #888;
+            border-top: 1px dashed #ddd;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calendar-card">
+        <div class="header">
+            <h1>Netto Countdown</h1>
+        </div>
+        <div class="body-content">
+            <div class="number" id="days-count">---</div>
+            <div class="subtext">TAGE NOCH</div>
+            <div class="footer-date" id="current-date">--.--.----</div>
+        </div>
+    </div>
+
+    <script>
+        function calculateNetDays() {
+            const targetDate = new Date(2029, 4, 1); // 1. Mai 2029
+            const today = new Date();
+            
+            // Setze Uhrzeit auf Mitternacht für exakte Tage
+            today.setHours(0,0,0,0);
+            targetDate.setHours(0,0,0,0);
+
+            if (today >= targetDate) {
+                return 0;
+            }
+
+            let totalWorkdays = 0;
+            let current = new Date(today);
+
+            // Zähle Wochentage (Mo-Fr)
+            while (current < targetDate) {
+                const dayOfWeek = current.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Kein Sa/So
+                    totalWorkdays++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+
+            // Urlaubstage abziehen (32 Tage/Jahr -> ca. 2.66 Tage/Monat)
+            const diffTime = Math.abs(targetDate - today);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const years = diffDays / 365.25;
+            const vacationDaysToSubtract = Math.round(years * 32);
+
+            // Grobe Feiertagsanpassung (ca. 8-9 Feiertage auf Wochentagen pro Jahr)
+            const holidaysToSubtract = Math.round(years * 8.5);
+
+            const netDays = totalWorkdays - vacationDaysToSubtract - holidaysToSubtract;
+            return netDays > 0 ? netDays : 0;
+        }
+
+        // UI Aktualisieren
+        document.getElementById('days-count').innerText = calculateNetDays();
+        
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('de-DE', options);
+    </script>
+</body>
+</html>
