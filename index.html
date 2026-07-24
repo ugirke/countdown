@@ -1,139 +1,308 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netto Countdown</title>
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5ldHRvIENvdW50ZG93biIsCiAgInNob3J0X25hbWUiOiAiQ291bnRkb3duIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxRTFFMjQiLAogICJ0aGVtZV9jb2xvciI6ICIjRDMyRjJGIgp9">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #1E1E24;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-        }
-        .calendar-card {
-            width: 320px;
-            background: #FAFAFA;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            overflow: hidden;
-            text-align: center;
-            position: relative;
-        }
-        .header {
-            background-color: #D32F2F;
-            color: white;
-            padding: 24px 10px 15px 10px;
-            position: relative;
-        }
-        .header h1 {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        /* Kalender-Löcher */
-        .header::before, .header::after {
-            content: '';
-            position: absolute;
-            top: 12px;
-            width: 14px;
-            height: 14px;
-            background-color: #1E1E24;
-            border-radius: 50%;
-        }
-        .header::before { left: 40px; }
-        .header::after { right: 40px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renten-Countdown</title>
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
-        .body-content {
-            padding: 40px 20px;
-        }
-        .number {
-            font-size: 5rem;
-            font-weight: 800;
-            color: #111;
-            line-height: 1;
-        }
-        .subtext {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #666;
-            margin-top: 10px;
-            letter-spacing: 1px;
-        }
-        .footer-date {
-            margin-top: 30px;
-            font-size: 0.95rem;
-            color: #888;
-            border-top: 1px dashed #ddd;
-            padding-top: 15px;
-        }
-    </style>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.2rem 0;
+      color: #00e676;
+    }
+    .subtext {
+      font-size: 0.8rem;
+      color: #aaaaaa;
+      margin-bottom: 1.2rem;
+    }
+
+    /* Abreißkalender Design */
+    .calendar-sheet {
+      background: #ffffff;
+      color: #111111;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      position: relative;
+      margin: 0 auto 1.2rem auto;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    /* Rote Kopfleiste mit angepassten Löchern */
+    .calendar-header {
+      background: #d32f2f;
+      color: #ffffff;
+      padding: 10px 24px; /* Mehr Platz an den Seiten */
+      font-weight: bold;
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      position: relative;
+      line-height: 1.2;
+    }
+
+    /* Ösen kleiner und ganz an den Rand geschoben */
+    .calendar-header::before, .calendar-header::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background-color: #1e1e1e;
+      border-radius: 50%;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .calendar-header::before { left: 10px; }
+    .calendar-header::after { right: 10px; }
+
+    /* Der Zahlenkörper des Kalenderblatts */
+    .calendar-body {
+      padding: 1.5rem 1rem 1rem 1rem;
+      background: linear-gradient(to bottom, #ffffff 0%, #f4f4f4 100%);
+    }
+
+    .big-number {
+      font-size: 4.8rem;
+      font-weight: 900;
+      color: #111111;
+      line-height: 1;
+      letter-spacing: -2px;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+    }
+
+    .calendar-footer {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #666666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-bottom: 10px;
+    }
+    
+    .vacation-section {
+      margin-top: 1.5rem;
+      border-top: 1px solid #333333;
+      padding-top: 1rem;
+      text-align: left;
+    }
+    .vacation-section h3 {
+      font-size: 0.85rem;
+      margin: 0 0 0.5rem 0;
+      color: #cccccc;
+    }
+    .vacation-input-group {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    input[type="date"] {
+      background: #2b2b2b;
+      border: 1px solid #444444;
+      color: #ffffff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      flex: 1;
+      font-size: 0.8rem;
+      color-scheme: dark;
+    }
+    button.add-btn {
+      background: #00e676;
+      color: #000000;
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    li {
+      background: #2a2a2a;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .delete-btn {
+      color: #ff5252;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="calendar-card">
-        <div class="header">
-            <h1>Netto Countdown</h1>
-        </div>
-        <div class="body-content">
-            <div class="number" id="days-count">---</div>
-            <div class="subtext">TAGE NOCH</div>
-            <div class="footer-date" id="current-date">--.--.----</div>
-        </div>
+  <div class="card">
+    <h1>Renten-Countdown</h1>
+    <div class="subtext">Ziel: 01.05.2029 (Netto-Arbeitstage)</div>
+
+    <!-- Abreißkalender Element -->
+    <div class="calendar-sheet">
+      <div class="calendar-header" id="calendarHeader">RESTZEIT</div>
+      <div class="calendar-body">
+        <div class="big-number" id="daysLeft">--</div>
+      </div>
+      <div class="calendar-footer">Arbeitstage verbleibend</div>
     </div>
 
-    <script>
-        function calculateNetDays() {
-            const targetDate = new Date(2029, 4, 1); // 1. Mai 2029
-            const today = new Date();
-            
-            // Setze Uhrzeit auf Mitternacht für exakte Tage
-            today.setHours(0,0,0,0);
-            targetDate.setHours(0,0,0,0);
+    <!-- Urlaub eintragen -->
+    <div class="vacation-section">
+      <h3>Urlaub eintragen (Pausiert Countdown)</h3>
+      <div class="vacation-input-group">
+        <input type="date" id="vacStart">
+        <input type="date" id="vacEnd">
+        <button class="add-btn" onclick="addVacation()">+</button>
+      </div>
+      <ul id="vacationList"></ul>
+    </div>
+  </div>
 
-            if (today >= targetDate) {
-                return 0;
-            }
+  <script>
+    const RENTEN_DATUM = new Date('2029-05-01T00:00:00');
+    
+    // Gesetzliche Feiertage NRW (2026 - 2029)
+    const FEIERTAGE = [
+      '2026-10-03', '2026-11-01', '2026-12-25', '2026-12-26',
+      '2027-01-01', '2027-03-26', '2027-03-29', '2027-05-01', '2027-05-06', '2027-05-17', '2027-05-27', '2027-11-01', '2027-12-25', '2027-12-26',
+      '2028-01-01', '2028-04-14', '2028-04-17', '2028-05-01', '2028-05-25', '2028-06-05', '2028-06-15', '2028-11-01', '2028-12-25', '2028-12-26',
+      '2029-01-01', '2029-03-30', '2029-04-02'
+    ];
 
-            let totalWorkdays = 0;
-            let current = new Date(today);
+    // Resturlaubs-Budget ab HEUTE:
+    const ABLAUF_URLAUB_TAGE = {
+      2026: 21,                       // Resturlaub für 2026 (32 - 11 genommene)
+      2027: 32,                       // Volles Jahr 2027
+      2028: 32,                       // Volles Jahr 2028
+      2029: Math.round((32 / 12) * 4)  // Anteilsmäßig 4 Monate bis 01.05.2029 (~11 Tage)
+    };
 
-            // Zähle Wochentage (Mo-Fr)
-            while (current < targetDate) {
-                const dayOfWeek = current.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Kein Sa/So
-                    totalWorkdays++;
-                }
-                current.setDate(current.getDate() + 1);
-            }
+    let vacations = JSON.parse(localStorage.getItem('vacations') || '[]');
 
-            // Urlaubstage abziehen (32 Tage/Jahr -> ca. 2.66 Tage/Monat)
-            const diffTime = Math.abs(targetDate - today);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const years = diffDays / 365.25;
-            const vacationDaysToSubtract = Math.round(years * 32);
+    function isWeekend(date) {
+      const day = date.getDay();
+      return day === 0 || day === 6;
+    }
 
-            // Grobe Feiertagsanpassung (ca. 8-9 Feiertage auf Wochentagen pro Jahr)
-            const holidaysToSubtract = Math.round(years * 8.5);
+    function isFeiertag(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      return FEIERTAGE.includes(dateStr);
+    }
 
-            const netDays = totalWorkdays - vacationDaysToSubtract - holidaysToSubtract;
-            return netDays > 0 ? netDays : 0;
+    function calculateNetDays() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // 1. BRUTTOTAGE = Alle reinen Kalendertage von heute bis 01.05.2029
+      const diffTime = RENTEN_DATUM.getTime() - today.getTime();
+      const bruttoKalendertage = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // 2. Reguläre Werktage Mo-Fr (ohne Feiertage)
+      let werktage = 0;
+      let curr = new Date(today);
+
+      while (curr < RENTEN_DATUM) {
+        if (!isWeekend(curr) && !isFeiertag(curr)) {
+          werktage++;
         }
+        curr.setDate(curr.getDate() + 1);
+      }
 
-        // UI Aktualisieren
-        document.getElementById('days-count').innerText = calculateNetDays();
+      // 3. Restliches Urlaubs-Budget addieren
+      let totalPauschalUrlaub = 0;
+      for (let year in ABLAUF_URLAUB_TAGE) {
+        if (year >= today.getFullYear()) {
+          totalPauschalUrlaub += ABLAUF_URLAUB_TAGE[year];
+        }
+      }
+
+      // 4. Netto-Arbeitstage = Werktage minus Urlaub
+      let nettoDays = werktage - totalPauschalUrlaub;
+
+      // Werte in die Anzeige schreiben
+      document.getElementById('daysLeft').innerText = Math.max(0, nettoDays);
+      document.getElementById('calendarHeader').innerText = `RESTZEIT (von ${bruttoKalendertage} BRUTTOTAGEN)`;
+      
+      renderVacationList();
+    }
+
+    function addVacation() {
+      const start = document.getElementById('vacStart').value;
+      const end = document.getElementById('vacEnd').value;
+      if (!start || !end) return;
+
+      vacations.push({ start, end });
+      localStorage.setItem('vacations', JSON.stringify(vacations));
+      document.getElementById('vacStart').value = '';
+      document.getElementById('vacEnd').value = '';
+      calculateNetDays();
+    }
+
+    function deleteVacation(index) {
+      vacations.splice(index, 1);
+      localStorage.setItem('vacations', JSON.stringify(vacations));
+      calculateNetDays();
+    }
+
+    function renderVacationList() {
+      const list = document.getElementById('vacationList');
+      list.innerHTML = '';
+      
+      vacations.sort((a,b) => new Date(a.start) - new Date(b.start)).forEach((v, index) => {
+        const li = document.createElement('li');
+        const dStart = new Date(v.start + 'T00:00:00').toLocaleDateString('de-DE');
+        const dEnd = new Date(v.end + 'T00:00:00').toLocaleDateString('de-DE');
         
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('de-DE', options);
-    </script>
+        li.innerHTML = `
+          <span>🌴 ${dStart} bis ${dEnd}</span>
+          <span class="delete-btn" onclick="deleteVacation(${index})">✕</span>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    calculateNetDays();
+  </script>
 </body>
 </html>
