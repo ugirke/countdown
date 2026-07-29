@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renten-Countdown</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #f87171;
+            --success: #34d399;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .days-container {
+            margin: 2rem 0;
+        }
+
+        .days-number {
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            line-height: 1;
+        }
+
+        .days-label {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pause-banner {
+            display: none;
+            background-color: rgba(52, 211, 153, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .pause-banner.active {
+            display: block;
+        }
+
+        .details {
+            border-top: 1px solid #334155;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            text-align: left;
+        }
+
+        .detail-item {
+            background-color: rgba(15, 23, 42, 0.5);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+
+        .vacation-section {
+            border-top: 1px solid #334155;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            text-align: left;
+        }
+
+        .vacation-section h2 {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin: 0 0 1rem 0;
+            font-weight: 600;
+        }
+
+        .vacation-input-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .vacation-input-row input[type="date"] {
+            flex: 1;
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            color: var(--text-color);
+            border-radius: 0.5rem;
+            padding: 0.6rem;
+            font-size: 0.95rem;
+            color-scheme: dark;
+        }
+
+        .vacation-input-row button {
+            background-color: var(--success);
+            border: none;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 1.3rem;
+            width: 3rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        .vacation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .vacation-item {
+            background-color: rgba(15, 23, 42, 0.5);
+            border-radius: 0.5rem;
+            padding: 0.7rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .vacation-item .remove-btn {
+            color: var(--danger);
+            font-weight: 800;
+            cursor: pointer;
+            padding-left: 1rem;
+        }
+
+        .empty-hint {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Countdown bis zum Ruhestand</h1>
+
+    <div class="pause-banner" id="pauseBanner">🌴 Urlaub – Countdown pausiert</div>
+
+    <div class="days-container">
+        <div class="days-number" id="netWorkDays">-</div>
+        <div class="days-label">Netto-Arbeitstage</div>
+    </div>
+
+    <div class="details">
+        <div class="detail-item">
+            <span class="detail-label">Stichtag</span>
+            <span class="detail-value">01.05.2029</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Urlaub verbleibend</span>
+            <span class="detail-value" id="vacationRemainingDisplay">-</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Brutto-Arbeitstage</span>
+            <span class="detail-value" id="grossWorkDays">-</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Feiertage (NRW)</span>
+            <span class="detail-value" id="holidaysCount">-</span>
+        </div>
+    </div>
+
+    <div class="vacation-section">
+        <h2>Urlaub eintragen (pausiert Countdown)</h2>
+        <div class="vacation-input-row">
+            <input type="date" id="vacFrom">
+            <input type="date" id="vacTo">
+            <button id="addVacationBtn">+</button>
+        </div>
+        <div class="vacation-list" id="vacationList"></div>
+    </div>
+</div>
+
+<script>
+    const retirementDate = new Date('2029-05-01');
+
+    // Pauschale Urlaubstage für Jahre, für die noch KEINE konkreten Zeiträume
+    // eingetragen wurden. Sobald für ein Jahr mindestens ein Zeitraum erfasst
+    // ist, entfällt die Pauschale für dieses Jahr und es zählen nur noch die
+    // echten Zeiträume.
+    const fallbackVacationByYear = {
+        2026: 21,
+        2027: 30,
+        2028: 30,
+        2029: 10
+    };
+
+    const STORAGE_KEY = 'rentenCountdownUrlaub';
+
+    function loadVacationRanges() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch (e) { /* ignore */ }
+        // Vorbelegung beim allerersten Aufruf
+        return [
+            { from: '2026-07-27', to: '2026-08-07' },
+            { from: '2026-09-07', to: '2026-09-18' },
+            { from: '2026-12-21', to: '2026-12-23' }
+        ];
+    }
+
+    function saveVacationRanges(ranges) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(ranges));
+    }
+
+    let vacationRanges = loadVacationRanges();
+
+    function formatDateDe(iso) {
+        const [y, m, d] = iso.split('-');
+        return `${d}.${m}.${y}`;
+    }
+
+    function renderVacationList() {
+        const list = document.getElementById('vacationList');
+        list.innerHTML = '';
+        if (vacationRanges.length === 0) {
+            list.innerHTML = '<div class="empty-hint">Noch keine Urlaubszeiträume eingetragen.</div>';
+            return;
+        }
+        vacationRanges
+            .slice()
+            .sort((a, b) => a.from.localeCompare(b.from))
+            .forEach((r) => {
+                const idx = vacationRanges.indexOf(r);
+                const item = document.createElement('div');
+                item.className = 'vacation-item';
+                item.innerHTML = `<span>🌴 ${formatDateDe(r.from)} bis ${formatDateDe(r.to)}</span><span class="remove-btn" data-idx="${idx}">✕</span>`;
+                list.appendChild(item);
+            });
+
+        list.querySelectorAll('.remove-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                vacationRanges.splice(idx, 1);
+                saveVacationRanges(vacationRanges);
+                renderVacationList();
+                calculateDays();
+            });
+        });
+    }
+
+    document.getElementById('addVacationBtn').addEventListener('click', () => {
+        const from = document.getElementById('vacFrom').value;
+        const to = document.getElementById('vacTo').value;
+        if (!from || !to || from > to) return;
+        vacationRanges.push({ from, to });
+        saveVacationRanges(vacationRanges);
+        document.getElementById('vacFrom').value = '';
+        document.getElementById('vacTo').value = '';
+        renderVacationList();
+        calculateDays();
+    });
+
+    // Osterdatum berechnen (Meeus/Jones/Butcher-Algorithmus, geprüft gegen echte Ostertermine)
+    function getEasterSunday(year) {
+        const a = year % 19;
+        const b = Math.floor(year / 100);
+        const c = year % 100;
+        const d = Math.floor(b / 4);
+        const e = b % 4;
+        const f = Math.floor((b + 8) / 25);
+        const g = Math.floor((b - f + 1) / 3);
+        const h = (19 * a + b - d - g + 15) % 30;
+        const i = Math.floor(c / 4);
+        const k = c % 4;
+        const l = (32 + 2 * e + 2 * i - h - k) % 7;
+        const m = Math.floor((a + 11 * h + 22 * l) / 451);
+        const month = Math.floor((h + l - 7 * m + 114) / 31);
+        const day = ((h + l - 7 * m + 114) % 31) + 1;
+        return new Date(year, month - 1, day);
+    }
+
+    // Feste und bewegliche Feiertage für NRW generieren
+    function getNRWHolidays(year) {
+        const holidays = [
+            new Date(year, 0, 1),   // Neujahr
+            new Date(year, 4, 1),   // Tag der Arbeit
+            new Date(year, 9, 3),   // Tag der Deutschen Einheit
+            new Date(year, 10, 1),  // Allerheiligen
+            new Date(year, 11, 25), // 1. Weihnachtstag
+            new Date(year, 11, 26)  // 2. Weihnachtstag
+        ];
+
+        const easter = getEasterSunday(year);
+
+        holidays.push(new Date(easter.getTime() - 2 * 24 * 60 * 60 * 1000));  // Karfreitag
+        holidays.push(new Date(easter.getTime() + 1 * 24 * 60 * 60 * 1000));  // Ostermontag
+        holidays.push(new Date(easter.getTime() + 39 * 24 * 60 * 60 * 1000)); // Christi Himmelfahrt
+        holidays.push(new Date(easter.getTime() + 50 * 24 * 60 * 60 * 1000)); // Pfingstmontag
+        holidays.push(new Date(easter.getTime() + 60 * 24 * 60 * 60 * 1000)); // Fronleichnam
+
+        return holidays.map(d => d.toISOString().split('T')[0]);
+    }
+
+    function isWeekdayNonHoliday(date, holidaySet) {
+        const dow = date.getDay();
+        const ds = date.toISOString().split('T')[0];
+        return dow !== 0 && dow !== 6 && !holidaySet.has(ds);
+    }
+
+    function isTodayOnVacation(today) {
+        const ds = today.toISOString().split('T')[0];
+        return vacationRanges.some(r => r.from <= ds && ds <= r.to);
+    }
+
+    function calculateDays() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const startYear = today.getFullYear();
+        const endYear = retirementDate.getFullYear();
+
+        // Feiertags-Set für alle betroffenen Jahre aufbauen
+        let holidaySet = new Set();
+        for (let y = startYear; y <= endYear; y++) {
+            getNRWHolidays(y).forEach(h => holidaySet.add(h));
+        }
+
+        // Brutto-Arbeitstage: ALLE Kalendertage von heute bis Stichtag (inkl. Wochenenden & Feiertage)
+        // weekdayNonHoliday: echte potenzielle Arbeitstage (Mo-Fr, ohne Feiertage) - Basis für Netto
+        let current = new Date(today);
+        let grossWorkdays = 0;
+        let nrwHolidaysCount = 0;
+        let weekdayNonHoliday = 0;
+        while (current < retirementDate) {
+            const dow = current.getDay();
+            const ds = current.toISOString().split('T')[0];
+            if (dow === 0 || dow === 6) {
+                // Wochenende
+            } else if (holidaySet.has(ds)) {
+                nrwHolidaysCount++;
+            } else {
+                weekdayNonHoliday++;
+            }
+            grossWorkdays++;
+            current.setDate(current.getDate() + 1);
+        }
+
+        // Jahre ermitteln, für die bereits konkrete Urlaubszeiträume erfasst sind
+        const explicitYears = new Set(vacationRanges.map(r => parseInt(r.from.substring(0, 4))));
+
+        // Pauschale nur für Jahre ohne konkrete Zeiträume
+        let vacationRemaining = 0;
+        for (const [yearStr, days] of Object.entries(fallbackVacationByYear)) {
+            const year = parseInt(yearStr);
+            if (year < startYear || year > endYear) continue;
+            if (!explicitYears.has(year)) vacationRemaining += days;
+        }
+
+        // Konkrete Zeiträume: nur der noch verbleibende Teil (ab heute) zählt,
+        // damit sich Brutto- und Urlaubs-Abbau an Urlaubstagen gegenseitig
+        // aufheben (= Countdown pausiert).
+        for (const r of vacationRanges) {
+            let s = new Date(r.from + 'T00:00:00');
+            let e = new Date(r.to + 'T00:00:00');
+            if (s < today) s = new Date(today);
+            if (e > retirementDate) e = new Date(retirementDate);
+            let cur = new Date(s);
+            while (cur <= e) {
+                if (isWeekdayNonHoliday(cur, holidaySet)) vacationRemaining++;
+                cur.setDate(cur.getDate() + 1);
+            }
+        }
+
+        const netWorkdays = Math.max(0, weekdayNonHoliday - vacationRemaining);
+
+        document.getElementById('netWorkDays').textContent = netWorkdays;
+        document.getElementById('grossWorkDays').textContent = grossWorkdays;
+        document.getElementById('holidaysCount').textContent = nrwHolidaysCount;
+        document.getElementById('vacationRemainingDisplay').textContent = vacationRemaining + ' Tage';
+
+        document.getElementById('pauseBanner').classList.toggle('active', isTodayOnVacation(today));
+    }
+
+    renderVacationList();
+    calculateDays();
+</script>
+
+</body>
+</html>
